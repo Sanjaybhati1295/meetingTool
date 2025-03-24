@@ -14,22 +14,20 @@ const io = new Server(server, {
   });
 
 // ✅ Handle WebRTC Connections
-io.on("connection", (socket) => {
-    const socket = io("wss://meetingtool-production.up.railway.app", {
-        transports: ["websocket", "polling"],
-      });
-      
-      socket.on("connect", () => {
-        console.log("Connected to WebSocket server:", socket.id);
-      });
-      
-      socket.on("disconnect", () => {
-        console.log("Disconnected from server");
-      });
-      
-      socket.on("user-joined", (userId) => {
-        console.log(`User ${userId} joined the meeting`);
-      });      
+const socket = io("wss://meetingtool-production.up.railway.app", {
+    transports: ["websocket", "polling"],
+});
+
+socket.on("connect", () => {
+console.log("Connected to WebSocket server:", socket.id);
+});
+
+socket.on("disconnect", () => {
+console.log("Disconnected from server");
+});
+
+socket.on("user-joined", (userId) => {
+console.log(`User ${userId} joined the meeting`);
 });
 
 // ✅ Default Route
