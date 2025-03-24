@@ -1,33 +1,17 @@
 const express = require("express");
 const http = require("http");
 const { Server } = require("socket.io");
-const cors = require("cors");
 
 const app = express();
 const server = http.createServer(app);
 
-// ✅ Enable CORS for Salesforce & WebRTC Clients
-app.use(cors({
-    origin: [
-        "https://your-salesforce-instance.lightning.force.com",  // 🔹 Replace with your Salesforce domain
-        "https://meetingtool-production.up.railway.app" // 🔹 Your WebRTC signaling server
-    ],
-    methods: ["GET", "POST"],
-    allowedHeaders: ["Content-Type"],
-    credentials: true
-}));
-
 // ✅ Initialize Socket.IO with CORS
 const io = new Server(server, {
     cors: {
-        origin: [
-            "orgfarm-e5d6b7ce9a-dev-ed.develop.my.salesforce.com", 
-            "https://meetingtool-production.up.railway.app"
-        ],
-        methods: ["GET", "POST"],
-        credentials: true
+      origin: "*",  // Allow all origins (You can restrict to specific domains)
+      methods: ["GET", "POST"]
     }
-});
+  });
 
 // ✅ Handle WebRTC Connections
 io.on("connection", (socket) => {
