@@ -21,7 +21,7 @@ app.use(cors({
 const io = new Server(server, {
     cors: {
         origin: [
-            "orgfarm-e5d6b7ce9a-dev-ed.develop.my.salesforce.com	", 
+            "orgfarm-e5d6b7ce9a-dev-ed.develop.my.salesforce.com", 
             "https://meetingtool-production.up.railway.app"
         ],
         methods: ["GET", "POST"],
