@@ -6,6 +6,11 @@ const app = express();
 const server = http.createServer(app);
 const io = socketIo(server);
 
+app.get("/", (req, res) => {
+    res.send("WebRTC Signaling Server is running!");
+  });
+
+  
 io.on('connection', (socket) => {
     console.log('New user connected:', socket.id);
 
