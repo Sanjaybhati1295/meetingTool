@@ -1,40 +1,58 @@
-const express = require('express');
-const http = require('http');
-const socketIo = require('socket.io');
+const express = require("express");
+const http = require("http");
+const { Server } = require("socket.io");
+const cors = require("cors");
+
 const app = express();
 const server = http.createServer(app);
-const io = socketIo(server);
 
-app.get("/", (req, res) => {
-    res.send("WebRTC Signaling Server is running!");
-  });
+// ✅ Enable CORS for Salesforce & WebRTC Clients
+app.use(cors({
+    origin: [
+        "https://your-salesforce-instance.lightning.force.com",  // 🔹 Replace with your Salesforce domain
+        "https://meetingtool-production.up.railway.app" // 🔹 Your WebRTC signaling server
+    ],
+    methods: ["GET", "POST"],
+    allowedHeaders: ["Content-Type"],
+    credentials: true
+}));
 
+// ✅ Initialize Socket.IO with CORS
+const io = new Server(server, {
+    cors: {
+        origin: [
+            "https://your-salesforce-instance.lightning.force.com", 
+            "https://meetingtool-production.up.railway.app"
+        ],
+        methods: ["GET", "POST"],
+        credentials: true
+    }
+});
 
-  
-io.on('connection', (socket) => {
-    console.log('New user connected:', socket.id);
+// ✅ Handle WebRTC Connections
+io.on("connection", (socket) => {
+    console.log("🔹 User Connected:", socket.id);
 
-    socket.on('join-room', (roomId) => {
+    // 🎯 Handle Room Joining
+    socket.on("join-room", (roomId) => {
         socket.join(roomId);
-        console.log(`User ${socket.id} joined room ${roomId}`);
-        socket.to(roomId).emit('user-joined', socket.id);
+        console.log(`🔹 User ${socket.id} joined room ${roomId}`);
+        socket.to(roomId).emit("user-connected", socket.id);
     });
 
-    socket.on('offer', (data) => {
-        socket.to(data.roomId).emit('receive-offer', data);
-    });
-
-    socket.on('answer', (data) => {
-        socket.to(data.roomId).emit('receive-answer', data);
-    });
-
-    socket.on('ice-candidate', (data) => {
-        socket.to(data.roomId).emit('receive-ice-candidate', data);
-    });
-
-    socket.on('disconnect', () => {
-        console.log('User disconnected:', socket.id);
+    // 🎯 Handle Disconnect
+    socket.on("disconnect", () => {
+        console.log("❌ User Disconnected:", socket.id);
     });
 });
 
-server.listen(3000, () => console.log('Signaling server running on port 3000'));
+// ✅ Default Route
+app.get("/", (req, res) => {
+    res.send("WebRTC Signaling Server is running!");
+});
+
+// ✅ Start the Server
+const PORT = process.env.PORT || 3000;
+server.listen(PORT, () => {
+    console.log(`✅ WebRTC Signaling Server is running on port ${PORT}`);
+});
